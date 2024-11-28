@@ -135,11 +135,21 @@ topMenuEl.addEventListener("click", (e) => {
           closeSubMenu(anchor);
         else
           anchor.classList.remove('active');
+
     }
   } catch (error) {
     console.error(error);
-    mainEl.querySelector("h1").textContent =  "DOM Manipulation";
-
+    mainEl.querySelector("h1").textContent = "DOM Manipulation";
+    topMenuEl.querySelector("nav a.active")?.classList.remove('active');
+    if(subMenuEl.childNodes){
+      let anchor_children = subMenuEl.childNodes;
+      for(let i = anchor_children.length - 1; i >= 0; i--){
+        subMenuEl.removeChild(anchor_children[i]);
+        console.log(anchor_children.length);
+       }
+       subMenuEl.style.height = "0%";
+    }
+      
   }
 });
 
