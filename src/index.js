@@ -62,10 +62,11 @@ menuLinks.forEach((element, index) => {
   anchor.appendChild(document.createTextNode(element.text));
   anchor.setAttribute("href", element.href);
 
-  if(menuLinks[index].subLinks) //At what index does the elemen
-    anchor.setAttribute("subLinks", menuLinks[index].subLinks);
+  if(menuLinks[index].subLinks)  //! Attributes holds the data
+    anchor.setAttribute("subLinks", JSON.stringify(menuLinks[index].subLinks));
   topMenuEl.append(anchor);
 });
+console.log(topMenuEl);
 headerEl.append(topMenuEl);
 
 //Output: <a href = index.href> index.text </a>
@@ -118,37 +119,54 @@ topMenuEl.addEventListener("click", (e) => {
     if (e.target.tagName !== "A")
       throw new Error("The object target is not an anchor tag");
 
-    let queue = Array.from(topMenuLinks).reduce((newArray, element) =>{ //! What is []
+    let queue = Array.from(topMenuLinks).reduce((newArray, element) =>{
         return element === e.target ? [...newArray,element]: [element,...newArray];},[]);
 
-    for(let anchor of queue){ //! What is stored inside top menu sublinks
-        if (anchor  === e.target){
+    for(let anchor of queue){ 
+        if (anchor === e.target){
           e.target.classList.add("active");
+          let str = anchor.textContent;
+          mainEl.querySelector("h1").textContent = str.charAt(0).toUpperCase() + str.slice(1);
           if(e.target.hasAttribute('sublinks'))
-            callSubMenu(e);
+            callSubMenu(e.target);
           continue;
         } 
-        if(anchor.hasAttribute('sublinks')) //!I only want this to run once
+        else if(anchor.hasAttribute('sublinks') && anchor.classList.contains('active')) 
           closeSubMenu(anchor);
-
-          //! need to add a case where the anchor is active but doesn't have a sublinks
+        else
+          anchor.classList.remove('active');
     }
   } catch (error) {
     console.error(error);
+    mainEl.querySelector("h1").textContent =  "DOM Manipulation";
+
   }
 });
 
 
-function callSubMenu (eventObj){
-   console.log(`${eventObj.target.textContent} has a sub-menu open`);
+function callSubMenu (anchor){
+   //console.log(`${anchor.textContent} has a sub-menu open`);
+   const array = JSON.parse(anchor.getAttribute('subLinks'));
+   
+   for(let link of array)
+   { 
+    let subMenu_anchor = document.createElement('a');
+    subMenu_anchor.append(document.createTextNode(link.text))
+    subMenu_anchor.setAttribute("href", link.href);
+    subMenuEl.append(subMenu_anchor);
+   }
+   console.log( subMenuEl.childNodes);
    subMenuEl.style.height = "100%";
 }
 
 function closeSubMenu(anchor) {
   subMenuEl.style.height = "0%";
+  let anchor_children = subMenuEl.childNodes;
+   for(let i = anchor_children.length - 1; i >= 0; i--){
+    subMenuEl.removeChild(anchor_children[i]);
+    console.log(anchor_children.length);
+   }
   anchor.classList.remove('active');
-  console.log('close subMenu');
- // console.log(`${eventObj.target.textContent} closed it's submenu`)
 }
 
 const completeHTML = document.documentElement.outerHTML;
